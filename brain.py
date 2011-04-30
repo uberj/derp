@@ -2,6 +2,9 @@
 # Plugin design developed by Rob McGuire-Dale
 
 from ip import get_ip
+from utils import s
+
+import re
 class Brain:
     def __init__(self):
         self.thoughts={}
@@ -9,9 +12,10 @@ class Brain:
 
     def load_plugins(self):
         self.thoughts['.ip'] = get_ip
+        self.thoughts['.s']  = s
 
     def contemplate(self,idea,sensory_input):
         if idea in self.thoughts:
             return self.thoughts[idea](sensory_input)
-        else:
-            return "Uhh..."
+        elif re.match('.s',idea):
+            return self.thoughts['.s'](idea)
