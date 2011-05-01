@@ -15,8 +15,8 @@ class Brain:
         self.thoughts['.ip'] = get_ip
         self.thoughts['.s']  = s
 
-    def contemplate(self,idea,sensory_input):
+    def contemplate(self,user,channel,idea,sensory_input):
         if idea in self.thoughts:
-            return self.thoughts[idea](sensory_input)
+            return self.thoughts[idea](user,channel,sensory_input)
         elif re.match('.s/',idea):
             return self.thoughts['.s'](idea,self.channel_log)

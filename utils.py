@@ -1,6 +1,21 @@
 import re
+from lxml import objectify
+import httplib2
 
-def s(string,channel_log):
+def spell(user,channel,string,channel_log):
+    h = httplib2.Http(".spell_check")
+    string = string.split(' ')
+    word = string[1]
+    resp, content = h.request("http://www.google.com/base/feeds/snippets?q="+word,"GET")
+    print content
+    m = re.search(r"spell=1 title=(.*)/>",content)
+    if m:
+        return user+", I thought is was "+m.groups()[0]
+    else:
+        return user+", sounds right to me"
+    # kind of hackish. We need to wait for the popen to finish
+
+def s(user,channel,string,channel_log):
     file = open(channel_log)
     lines = file.readlines()
 

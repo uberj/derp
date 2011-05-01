@@ -62,7 +62,7 @@ class LogBot(irc.IRCClient):
 
         # Check to see if they're sending me a private message
         if channel == self.nickname:
-            msg = "It isn't nice to whisper!  Play nice with the group."
+            msg = "I don't talk to people like you."
             self.msg(user, msg)
             return
 
@@ -72,11 +72,13 @@ class LogBot(irc.IRCClient):
             self.msg(channel, msg)
             self.logger.log("<%s> %s" % (self.nickname, msg))
 
+        # This is where the magic happens. If you put a . in front of a command it get's picked up here.
+        # If you want to add a command do it in brain.py and register a plugin
         if msg.startswith('.'):
             msg = msg.split(' ')
             idea = msg[0]
             sensory_input = ' '.join(msg[1:])
-            response = self.factory.brain.contemplate(idea,sensory_input)
+            response = self.factory.brain.contemplate(user,idea,sensory_input)
             self.msg(channel,response)
 
     def action(self, user, channel, msg):
