@@ -2,7 +2,7 @@
 # Plugin design developed by Rob McGuire-Dale
 
 from ip import get_ip
-from utils import s,spell
+from utils import s,spell,auto
 
 import re
 class Brain:
@@ -15,6 +15,7 @@ class Brain:
         self.thoughts['.ip']    = get_ip
         self.thoughts['.s']     = s
         self.thoughts['.spell'] = spell
+        self.thoughts['.autoc'] = auto
 
     def contemplate(self,user,channel,msg):
         line = msg.split(' ')
