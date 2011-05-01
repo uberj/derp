@@ -6,8 +6,9 @@ from utils import s
 
 import re
 class Brain:
-    def __init__(self):
+    def __init__(self,channel_log):
         self.thoughts={}
+        self.channel_log=channel_log
         self.load_plugins()
 
     def load_plugins(self):
@@ -17,5 +18,5 @@ class Brain:
     def contemplate(self,idea,sensory_input):
         if idea in self.thoughts:
             return self.thoughts[idea](sensory_input)
-        elif re.match('.s',idea):
-            return self.thoughts['.s'](idea)
+        elif re.match('.s/',idea):
+            return self.thoughts['.s'](idea,self.channel_log)

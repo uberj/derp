@@ -16,6 +16,8 @@ class MessageLogger:
     def __init__(self, file):
         self.file = file
 
+    def get_log(self):
+        return self.file
     def log(self, message):
         """Write a message to the file."""
         timestamp = time.strftime("[%H:%M:%S]", time.localtime(time.time()))
@@ -114,7 +116,7 @@ class LogBotFactory(protocol.ClientFactory):
     def __init__(self, channel, filename):
         self.channel = channel
         self.filename = filename
-        self.brain = brain.Brain()
+        self.brain = brain.Brain(self.filename)
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
