@@ -3,6 +3,7 @@
 
 from ip import get_ip
 from utils import s,spell,auto
+from jokes import troll
 
 import re
 class Brain:
@@ -17,10 +18,12 @@ class Brain:
         self.thoughts['.spell'] = spell
         self.thoughts['.autoc'] = auto
 
-    def contemplate(self,user,channel,msg):
+    def contemplate(self,protocol,user,channel,msg):
         line = msg.split(' ')
         idea = line[0]
         sensory_input = ' '.join(line[1:])
+        if idea == '.troll':
+            return troll(user,channel,sensory_input,protocol,self.channel_log)
         if idea in self.thoughts:
             return self.thoughts[idea](user,channel,sensory_input,self.channel_log)
         elif re.match('.s/',idea):

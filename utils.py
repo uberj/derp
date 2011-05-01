@@ -76,6 +76,8 @@ def s(user,channel,string,channel_log):
         # first check if this line was said by the user
         line_un = _get_user(line)
         # get rid of the stupid time stamp. We don't want to match that.
+        if line_un != user:
+            continue
         line = re.sub('.*<.*> ','',line)
         if re.search(expr[0],line):
             break

@@ -28,7 +28,7 @@ class MessageLogger:
         self.file.close()
 
 
-class LogBot(irc.IRCClient):
+class HerpBot(irc.IRCClient):
     """A herping IRC bot."""
 
     nickname = "derp"
@@ -68,14 +68,14 @@ class LogBot(irc.IRCClient):
 
         # Otherwise check to see if it is a message directed at me
         if msg.startswith(self.nickname + ":"):
-            msg = "%s: I am a log bot" % user
+            msg = "%s: I've been derping really hard lately. I can't respond." % user
             self.msg(channel, msg)
             self.logger.log("<%s> %s" % (self.nickname, msg))
 
         # This is where the magic happens. If you put a . in front of a command it get's picked up here.
         # If you want to add a command do it in brain.py and register a plugin
         if msg.startswith('.'):
-            response = self.factory.brain.contemplate(user,channel,msg)
+            response = self.factory.brain.contemplate(self,user,channel,msg)
             if not response:
                 response = "Uhh?"
             self.msg(channel,response)
@@ -105,14 +105,14 @@ class LogBot(irc.IRCClient):
 
 
 
-class LogBotFactory(protocol.ClientFactory):
-    """A factory for LogBots.
+class HerpBotFactory(protocol.ClientFactory):
+    """A factory for HerpBots.
 
     A new protocol instance will be created each time we connect to the server.
     """
 
     # the class of the protocol to build when new connection is made
-    protocol = LogBot
+    protocol = HerpBot
 
     def __init__(self, channel, filename):
         self.channel = channel
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     log.startLogging(sys.stdout)
 
     # create factory protocol and application
-    f = LogBotFactory(sys.argv[1], sys.argv[2])
+    f = HerpBotFactory(sys.argv[1], sys.argv[2])
 
     # connect factory to this host and port
     reactor.connectTCP("irc.freenode.net", 6667, f)
