@@ -40,7 +40,7 @@ def spell(user,channel,word,channel_log):
     search = "http://www.google.com/base/feeds/snippets?q=%s" % query[1:] # There's and extra +
     print search
     resp, content = h.request( search ,"GET")
-    m = re.search(r"spell=1' title='([ a-zA-Z'\"\[\]]*)'",content)
+    m = re.search(r"spell=1' title='([&; a-zA-Z'\"\[\]]*)'",content)
     if m:
         print m.groups()[0]
         return m.groups()[0]

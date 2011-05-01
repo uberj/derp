@@ -1,3 +1,3 @@
 from utils import spell
 
-spell("uberj","random","somethign special","asdf")
+spell("uberj","random","thats flwers","asdf")
