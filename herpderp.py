@@ -31,7 +31,7 @@ class MessageLogger:
 class HerpBot(irc.IRCClient):
     """A herping IRC bot."""
 
-    nickname = "derp"
+    nickname = "herp"
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.filename, "a"))
@@ -72,12 +72,10 @@ class HerpBot(irc.IRCClient):
             self.msg(channel, msg)
             self.logger.log("<%s> %s" % (self.nickname, msg))
 
-        # This is where the magic happens. If you put a . in front of a command it get's picked up here.
-        # If you want to add a command do it in brain.py and register a plugin
-        if msg.startswith('.'):
-            response = self.factory.brain.contemplate(self,user,channel,msg)
-            if not response:
-                response = "Uhh?"
+        # If it is not a pm and not an action, then it must be someone speaking. Pass the
+        # their words in to the brain and write it's response to the wire.
+        response = self.factory.brain.contemplate(self,user,channel,msg)
+        if response:
             self.msg(channel,response)
 
     def action(self, user, channel, msg):
@@ -117,7 +115,7 @@ class HerpBotFactory(protocol.ClientFactory):
     def __init__(self, channel, filename):
         self.channel = channel
         self.filename = filename
-        self.brain = brain.Brain(self.filename)
+        self.brain = brain.Brain(self.filename,channel)
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
