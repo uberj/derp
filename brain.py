@@ -29,7 +29,7 @@ class Brain:
         self.thoughts['.spell'] = spell
         self.thoughts['.autoc'] = auto
 
-    def contemplate(self,mouth,user,channel,msg):
+    def contemplate(self,protocol,user,channel,msg):
         channel = re.sub('#+','',channel)
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?",[channel])
         # We have a table for that channel. Write to it.
@@ -43,13 +43,25 @@ class Brain:
                 line = msg.split(' ')
                 idea = line[0]
                 sensory_input = ' '.join(line[1:])
-                if idea == '.troll':
-                    return troll(user,channel,sensory_input,mouth,self.channel_log)
+                # There is a lot of resources to pass to each subroutine.
+                # If you need to pass it something just add it to the bundle.
+                bundle = {
+                            'mouth': protocol,
+                            'user': user,
+                            'channel': channel,
+                            'msg': msg, # full message
+                            'idea': idea, # The fist half of the parsed message
+                            'sensory_input': sensory_input, # The second half of the parsed message
+                            'conn': self.conn,
+                            'cursor': self.cursor,
+                            'log': self.channel_log # legacy code already?
+                         }
                 if idea in self.thoughts:
-                    return self.thoughts[idea](user,channel,sensory_input,self.channel_log)
+                    return self.thoughts[idea](bundle)
                 elif re.match('.s/',idea):
-                    # pass the whole messag in
-                    return self.thoughts['.s'](user,channel,msg,self.channel_log)
+                    print idea
+                    # pass the whole message in
+                    return self.thoughts['.s'](bundle)
         else:
             print "unknown message from channel "+channel
             return None

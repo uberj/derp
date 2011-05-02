@@ -1,30 +1,31 @@
 import re
-from lxml import objectify
 import httplib2
+from lib import reverse_list
 
-def auto(user,channel,word,channel_log):
-    file = open(channel_log)
-    lines = file.readlines()
-
-    # Clean up input
-    lines = _reverse_list(lines)
-    # Take the file and reverse the list. This will help us
-    # match the first instance of string
-    lines = lines[1:] # get rid of the .autoc line
+def auto(bundle):
+    cursor = bundle['cursor']
+    user = bundle['user']
+    expr = bundle['idea'].split('/')[1:] # Just get the /<search>/<replace. Put in list
+    sql = "select * from uberj order by date desc limit 5" # Unless there is crazy lag, if won't be that long ago
+    cursor.execute(sql)
+    lines = cursor.fetchall()
     auto_line=""
-    for line in lines:
+    for line in lines[1:]: # [1:] get's rid of the thing the user just said
         # first check if this line was said by the user
-        line_un = _get_user(line)
-        print line_un
-        print user
+        line_un = line[2]
         if user == line_un:
             print line
-            auto_line = re.sub('.*<.*> ','',line)
+            auto_line = line[3]
             break
 
-    return spell(user,channel,auto_line,channel_log)
+    if not auto_line:
+        return "BUG_ON!"
+    bundle['sensory_input'] = auto_line# The the R's !!
+    return spell(bundle)
 
-def spell(user,channel,word,channel_log):
+def spell(bundle):
+    word = bundle['sensory_input']
+    user = bundle['user']
     h = httplib2.Http()
     troll = re.match('^[ ]*$',word)
     if troll:
@@ -48,53 +49,29 @@ def spell(user,channel,word,channel_log):
         return user+", sounds right to me"
     # kind of hackish. We need to wait for the popen to finish
 
-def s(user,channel,string,channel_log):
-    print string
-    file = open(channel_log)
-    lines = file.readlines()
-
-    expr = string.split('/')[1:] # Just get the /<search>/<replace. Put in list
-    lines = _reverse_list(lines)
-    # Short circuit to find if we need to look at a
-    # specific line. They did a .s/xx/yy/4 to replace 4 lines up.
-    if len(expr) > 2 and re.search('^\d*\d$',expr[2]):
-        i = int(expr[2])
-        while i > 0:
-            username =_get_user(lines[0])
-            if username == user:
-                lines = lines[1:]
-                i= i-1
-            else:
-                # We want to drop any cruft.
-                lines = lines[1:]
+def s(bundle):
+    print "The bundle "+str(bundle)
+    cursor = bundle['cursor']
+    user = bundle['user']
+    expr = bundle['idea'].split('/')[1:] # Just get the /<search>/<replace. Put in list
+    sql = "select * from uberj order by date desc"
+    print expr
+    offset = 0
+    try:
+        offset = int(expr[2])
+    except ValueError,e:
+        print e
+    if offset:
+        sql = sql+" limit "+str(offset+1)
+        print sql
     else:
-        lines = lines[1:]
-
-    # Take the file and reverse the list. This will help us
-    # match the first instance of string
-    for line in lines:
-        # first check if this line was said by the user
-        line_un = _get_user(line)
-        # get rid of the stupid time stamp. We don't want to match that.
-        if line_un != user:
-            continue
-        line = re.sub('.*<.*> ','',line)
-        if re.search(expr[0],line):
-            break
-
-    print re.sub(expr[0],expr[1],line).strip()
-    return user+" meant to say: "+re.sub(expr[0],expr[1],line).strip()
-
-def _reverse_list(lst):
-    r_lst=[]
-    for line in lst:
-        r_lst = [line] + r_lst
-    return r_lst
-
-def _get_user(line):
-    #remeber the user
-    m = re.match('.*<(.*)> ',line)
-    if not m:
-        return False
-    user = m.groups()
-    return user[0].strip()
+        sql = sql+" limit 2"
+        print sql
+    cursor.execute(sql)
+    lines = cursor.fetchall()
+    lines = reverse_list(lines)
+    string = str(lines[0][3])
+    print string
+    print expr
+    print re.sub(expr[1],expr[0],string)
+    return user+" meant to say: "+re.sub(expr[1],expr[0],string).strip()
