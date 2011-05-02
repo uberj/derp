@@ -7,10 +7,13 @@ def auto(bundle):
     cursor = bundle['cursor']
     user = bundle['user']
     expr = bundle['idea'].split('/')[1:] # Just get the /<search>/<replace. Put in list
-    sql = "select * from uberj order by date desc limit 5" # Unless there is crazy lag, if won't be that long ago
+    channel = bundle['channel']
+    sql = "select * from %s order by date desc limit 5" % channel # Unless there is crazy lag, if won't be that long ago
+    print sql
     cursor.execute(sql)
     lines = cursor.fetchall()
     auto_line=""
+    print lines
     for line in lines[1:]: # [1:] get's rid of the thing the user just said
         # first check if this line was said by the user
         line_un = line[2]
@@ -19,6 +22,7 @@ def auto(bundle):
             auto_line = line[3]
             break
 
+    print "auto line is "+auto_line
     if not auto_line:
         return "BUG_ON!"
     bundle['sensory_input'] = auto_line# The the R's !!
@@ -44,7 +48,7 @@ def spell(bundle):
     resp, content = h.request( search ,"GET")
     lxml_html = html.fromstring(content)
     spell_link_objects = dict(lxml_html.xpath('//link')[1].items())
-    m = re.search(r"spell=1",spell_link_objectsi['href'])
+    m = re.search(r"spell=1",spell_link_objects['href'])
     if m:
         return spell_link_objects['title']
     else:

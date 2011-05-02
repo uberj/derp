@@ -5,7 +5,7 @@ from test_db_setup import *
 bundle = {
     'mouth': "",
     'user': "uberj",
-    'channel': "uberj",
+    'channel': "uberjderp",
     'msg': sys.argv[2],
     'idea': sys.argv[1], # The fist half of the parsed message
     'sensory_input':sys.argv[3] , # The second half of the parsed message
