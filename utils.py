@@ -1,4 +1,5 @@
 import re
+from lxml import objectify, html
 import httplib2
 from lib import reverse_list
 
@@ -41,10 +42,11 @@ def spell(bundle):
     search = "http://www.google.com/base/feeds/snippets?q=%s" % query[1:] # There's and extra +
     print search
     resp, content = h.request( search ,"GET")
-    m = re.search(r"spell=1' title='([&; a-zA-Z'\"\[\]]*)'",content)
+    lxml_html = html.fromstring(content)
+    spell_link_objects = dict(lxml_html.xpath('//link')[1].items())
+    m = re.search(r"spell=1",spell_link_objectsi['href'])
     if m:
-        print m.groups()[0]
-        return m.groups()[0]
+        return spell_link_objects['title']
     else:
         return user+", sounds right to me"
     # kind of hackish. We need to wait for the popen to finish
