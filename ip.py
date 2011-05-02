@@ -3,7 +3,7 @@ import httplib2
 import os
 import time
 
-def get_ip(user,channel,random_string,channel_log):
+def get_ip(bundle):
     h = httplib2.Http()
     resp, content = h.request("http://ifconfig.me/all/xml","GET")
     # kind of hackish. We need to wait for the popen to finish
