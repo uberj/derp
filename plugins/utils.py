@@ -58,9 +58,10 @@ def spell(bundle):
 def s(bundle):
     print "The bundle "+str(bundle)
     cursor = bundle['cursor']
+    channel = bundle['channel']
     user = bundle['user']
-    expr = bundle['idea'].split('/')[1:] # Just get the /<search>/<replace. Put in list
-    sql = "select * from uberj order by date desc"
+    expr = bundle['msg'].split('/')[1:] # Just get the /<search>/<replace. Put in list
+    sql = "select * from %s order by date desc" % channel
     print expr
     offset = 0
     try:
@@ -79,5 +80,5 @@ def s(bundle):
     string = str(lines[0][3])
     print string
     print expr
-    print re.sub(expr[1],expr[0],string)
-    return user+" meant to say: "+re.sub(expr[1],expr[0],string).strip()
+    print re.sub(expr[0],expr[1],string)
+    return user+" meant to say: "+re.sub(expr[0],expr[1],string).strip()

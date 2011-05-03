@@ -1,4 +1,4 @@
 logfile
 db/
 *.pyc
-
+test.py

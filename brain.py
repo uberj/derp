@@ -2,9 +2,10 @@
 # Database logging
 import sqlite3
 # Plugin design by Rob McGuire-Dale
-from ip import get_ip
-from utils import s,spell,auto
-from jokes import troll
+from plugins.ip import get_ip
+from plugins.utils import s,spell,auto
+from plugins.jokes import troll
+
 # util libraries
 import re
 import time
@@ -28,6 +29,7 @@ class Brain:
         self.thoughts['.s']     = s
         self.thoughts['.spell'] = spell
         self.thoughts['.autoc'] = auto
+        self.thoughts['.troll'] = troll
 
     def contemplate(self,protocol,user,channel,msg):
         channel = re.sub('#+','',channel)
