@@ -15,15 +15,17 @@ PLUGIN_CONFIG = 'config/plugins.cfg'
 GLOBAL_CONFIG = 'config/config.cfg'
 
 class Brain:
-    def __init__(self,channel_log,channel):
+    def __init__( self, channel ):
         self.thoughts={}
         self.plugins={}
         self.config = ConfigParser()
-        self.channel_log=channel_log
         self.config.read(GLOBAL_CONFIG)
         self.c_token = self.config.get('command_token','token')
         # This will need to be ported when we leave sqlite3
-        self.conn = sqlite3.connect(self.config.get('database','path'))
+        #db = self.config.get('database','path')
+        db = 'db/channel_log'
+        print db
+        self.conn = sqlite3.connect(db)
         self.cursor = self.conn.cursor()
         print "Going to use "+channel
         self.cursor.execute("""create table if not exists %s
@@ -34,7 +36,7 @@ class Brain:
         self.config = ConfigParser()
         self.load_plugins()
 
-    def parse_config(self):
+    def parse_config( self ):
         self.config.read(PLUGIN_CONFIG)
         plugins = self.config.sections()
         for plugin in plugins:
@@ -49,7 +51,7 @@ class Brain:
 
 
 
-    def load_plugins(self):
+    def load_plugins( self ):
         self.parse_config()
         # The pluggin module
         p = __import__('plugins')
@@ -66,6 +68,7 @@ class Brain:
 
     def contemplate(self,protocol,user,channel,msg):
         channel = re.sub('#+','',channel)
+        # We only want to log and response to messages for registered tables.
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?",[channel])
         # We have a table for that channel. Write to it.
         if self.cursor.fetchall():
@@ -89,7 +92,6 @@ class Brain:
                             'sensory_input': sensory_input, # The second half of the parsed message
                             'conn': self.conn,
                             'cursor': self.cursor,
-                            'log': self.channel_log # legacy code already?
                          }
                 if idea in self.thoughts:
                     return self.thoughts[idea](bundle)
@@ -98,5 +100,5 @@ class Brain:
                     # pass the whole message in
                     return self.thoughts['.s'](bundle)
         else:
-            print "unknown message from channel "+channel
+            print "message from unknown channel "+channel
             return None

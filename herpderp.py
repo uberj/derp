@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # Modified from Twisted Matrix Laboratories.
-from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol
 from twisted.python import log
+from twisted.words.protocols import irc
 
 # system imports
 import time, sys, os
 import brain
+GLOBAL_CONFIG = 'config/config.cfg'
+from ConfigParser import ConfigParser
 
 class MessageLogger:
     """
@@ -62,9 +64,20 @@ class HerpBot(irc.IRCClient):
 
         # Check to see if they're sending me a private message
         if channel == self.nickname:
-            msg = "I don't talk to people like you."
-            self.msg(user, msg)
-            return
+            msg = msg.split(' ')
+            if msg[0] == "!loadplugins":
+                self.factory.config.read(GLOBAL_CONFIG)
+                print msg
+                if len(msg) is 2 and msg[1] == self.factory.config.get('plugin_control','pswd'):
+                    print "PASSED: loading plugins"
+                    self.factory.brain.load_plugins()
+                    # I should work in an error message into the plugin loading process.
+                    self.msg(user,"Loaded plugins, check the log for success/failure")
+                    return
+
+        msg = "I don't talk to people like you."
+        self.msg(user, msg)
+        return
 
         # Otherwise check to see if it is a message directed at me
         if msg.startswith(self.nickname + ":"):
@@ -77,6 +90,7 @@ class HerpBot(irc.IRCClient):
         response = self.factory.brain.contemplate(self,user,channel,msg)
         if response:
             self.msg(channel,response)
+        return
 
     def action(self, user, channel, msg):
         """This will get called when the bot sees someone do an action."""
@@ -115,7 +129,8 @@ class HerpBotFactory(protocol.ClientFactory):
     def __init__(self, channel, filename):
         self.channel = channel
         self.filename = filename
-        self.brain = brain.Brain(self.filename,channel)
+        self.brain = brain.Brain(channel)
+        self.config = ConfigParser()
 
     def clientConnectionLost(self, connector, reason):
         """If we get disconnected, reconnect to server."""
