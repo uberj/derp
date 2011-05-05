@@ -10,6 +10,5 @@ class Command(object):
         self.command = "ping"
     def cmd(self,bundle):
         print bundle
-        print "THIS IS AN EDIT"
-
+        print "asdf?"
 bot_command = Command()

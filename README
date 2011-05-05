@@ -1,0 +1,7 @@
+sdf
+>>> rebuild(ibot.plugins.command).Command().cmd(bundle)
+asdf
+asdf?
+>>> from twisted.python.rebuild import latestFunction,latestClass,rebuild
+>>> from twisted.python.rebuild import rebuild
+
