@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 # Database logging
 import sqlite3
-from plugins.ip import get_ip
-from plugins.utils import s,spell,auto
-from plugins.jokes import troll
+# Plugin stuff
+from twisted.python.rebuild import rebuild
 
 # util libraries
 import re
@@ -11,17 +10,19 @@ import time
 from ConfigParser import ConfigParser
 
 # Need to make this absolute eventually
-PLUGIN_CONFIG = 'config/plugins.cfg'
-GLOBAL_CONFIG = 'config/config.cfg'
+PLUGIN_CONFIG = 'Herp/config/plugins.cfg'
+GLOBAL_CONFIG = 'config.cfg'
 
 class Brain:
     def __init__( self, channel ):
         self.config = ConfigParser()
         self.config.read(GLOBAL_CONFIG)
-        self.c_token = self.config.get('command_token','token')
+        #self.c_token = self.config.get('command_token','token')
+        path = self.config.get('base_directory','dir')
+        self.c_token="'"
         # This will need to be ported when we leave sqlite3
         #db = self.config.get('database','path')
-        db = 'db/channel_log'
+        db = path+'Herp/derp/db/channel_log'
         print db
         self.conn = sqlite3.connect(db)
         self.cursor = self.conn.cursor()
@@ -35,6 +36,12 @@ class Brain:
         self.load_plugins()
 
     def load_plugins( self ):
+        from twisted.plugin import getPlugins,IPlugin
+        import plugins
+        for command in getPlugins(IPlugin,plugins):
+            print "HERE"
+            print command
+        """
         self.config.read(PLUGIN_CONFIG)
         plugins = self.config.sections()
         p = __import__('plugins')
@@ -52,6 +59,7 @@ class Brain:
             except AttributeError:
                 self.do_plugin_error(module,idea,function)
         print self.thoughts
+        """
 
     def contemplate(self,protocol,user,channel,msg):
         channel = re.sub('#+','',channel)

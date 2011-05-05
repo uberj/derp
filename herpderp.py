@@ -6,8 +6,8 @@ from twisted.words.protocols import irc
 
 # system imports
 import time, sys, os
-import brain
-GLOBAL_CONFIG = 'config/config.cfg'
+from derp import brain
+GLOBAL_CONFIG = 'derp/config/config.cfg'
 from ConfigParser import ConfigParser
 
 class MessageLogger:
