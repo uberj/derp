@@ -16,8 +16,6 @@ GLOBAL_CONFIG = 'config/config.cfg'
 
 class Brain:
     def __init__( self, channel ):
-        self.thoughts={}
-        self.plugins={}
         self.config = ConfigParser()
         self.config.read(GLOBAL_CONFIG)
         self.c_token = self.config.get('command_token','token')
@@ -31,39 +29,28 @@ class Brain:
         self.cursor.execute("""create table if not exists %s
                                 (date text, channel text, user text, msg text)
                             """ % (channel))
-
         # LOAD THE PLUGINS OF DEATH!!!
         self.config = ConfigParser()
+        self.thoughts={}
         self.load_plugins()
 
-    def parse_config( self ):
+    def load_plugins( self ):
         self.config.read(PLUGIN_CONFIG)
         plugins = self.config.sections()
+        p = __import__('plugins')
+        reload(p)
         for plugin in plugins:
             # What's the lib function to just return the config as a dictionary?
             module = self.config.get(plugin,'file')[:-3]
-            cmd = self.config.get(plugin,'cmd')
-            fun = self.config.get(plugin,'fun')
-            self.plugins[plugin] =[module,cmd,fun]
-
-        print self.plugins
-
-
-
-
-    def load_plugins( self ):
-        self.parse_config()
-        # The pluggin module
-        p = __import__('plugins')
-        for idea,action in self.plugins.items():
-            module = action[0]
-            idea =self.c_token+action[1]
-            function = action[2]
-
-            plugin = getattr( p, module )
-            action = getattr( plugin, function )
-
-            self.thoughts[idea] = action
+            idea = self.c_token+self.config.get(plugin,'cmd')
+            function = self.config.get(plugin,'fun')
+            try:
+                plugin = getattr( p, module )
+                reload(plugin)
+                action = getattr( plugin, function )
+                self.thoughts[idea] = action
+            except AttributeError:
+                self.do_plugin_error(module,idea,function)
         print self.thoughts
 
     def contemplate(self,protocol,user,channel,msg):
@@ -84,14 +71,14 @@ class Brain:
                 # There is a lot of resources to pass to each subroutine.
                 # If you need to pass it something just add it to the bundle.
                 bundle = {
-                            'mouth': protocol,
+                            'mouth': protocol, # write to this
                             'user': user,
                             'channel': channel,
                             'msg': msg, # full message
                             'idea': idea, # The fist half of the parsed message
                             'sensory_input': sensory_input, # The second half of the parsed message
                             'conn': self.conn,
-                            'cursor': self.cursor,
+                            'cursor': self.cursor, # access to the channel log via sqlite3
                          }
                 if idea in self.thoughts:
                     return self.thoughts[idea](bundle)
@@ -101,4 +88,8 @@ class Brain:
                     return self.thoughts['.s'](bundle)
         else:
             print "message from unknown channel "+channel
+            print msg
             return None
+
+    def do_plugin_error( self, module, idea, function ):
+        print "Error importing %s%s function: %s" % (module,idea,function)

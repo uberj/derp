@@ -9,5 +9,6 @@ def get_ip(bundle):
     # kind of hackish. We need to wait for the popen to finish
     root = objectify.fromstring(content)
     ip = root['ip_addr']
+    print "HEY WE ARE RE IMPORTIN"
     print ip
     return ip

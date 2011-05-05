@@ -33,7 +33,7 @@ class MessageLogger:
 class HerpBot(irc.IRCClient):
     """A herping IRC bot."""
 
-    nickname = "herp"
+    nickname = "derpicus"
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.filename, "a"))
@@ -64,6 +64,8 @@ class HerpBot(irc.IRCClient):
 
         # Check to see if they're sending me a private message
         if channel == self.nickname:
+            print user+" "+channel+" "+msg
+
             msg = msg.split(' ')
             if msg[0] == "!loadplugins":
                 self.factory.config.read(GLOBAL_CONFIG)
@@ -75,9 +77,13 @@ class HerpBot(irc.IRCClient):
                     self.msg(user,"Loaded plugins, check the log for success/failure")
                     return
 
-        msg = "I don't talk to people like you."
-        self.msg(user, msg)
-        return
+            msg = "I don't talk to people like you."
+            if user == "NickServ":
+                #We don't want to respond to NickServ or ChanServ. We get stuck in an infinite loop.
+                # BUGGGGGGYYYYY HAAACKK MY FACE
+                print "NickServ: "+msg
+                return
+            self.msg(user, msg)
 
         # Otherwise check to see if it is a message directed at me
         if msg.startswith(self.nickname + ":"):
