@@ -7,7 +7,7 @@ from twisted.words.protocols import irc
 # system imports
 import time, sys, os
 from derp import brain
-GLOBAL_CONFIG = 'derp/config/config.cfg'
+GLOBAL_CONFIG = 'config.cfg'
 from ConfigParser import ConfigParser
 
 class MessageLogger:

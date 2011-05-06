@@ -1,5 +1,6 @@
 from zope.interface import Interface, Attribute
 
+# Idea. Make all public functions corrospond to commands. Use private functions for everything else.
 class ICommand(Interface):
     def cmd(bundle):
         """
@@ -8,4 +9,4 @@ class ICommand(Interface):
         @ param bundle blah
         """
 
-    command = Attribute("""The name of the command that the bot will pasre and look for.""")
+    commands = Attribute("""List of the commands that the bot will pasre and look for.""")
