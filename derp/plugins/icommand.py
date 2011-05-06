@@ -9,4 +9,6 @@ class ICommand(Interface):
         @ param bundle blah
         """
 
+    # This should be a dictionary. Is there a way to enforce that at implementation time?
+    # commands = {'command':'function'}
     commands = Attribute("""List of the commands that the bot will pasre and look for.""")

@@ -12,13 +12,19 @@ class Network_Util(object):
     commands = {'ip':'ip'}
     name = "Network_Util"
 
+    def __init__( self ):
+        print "Netword_Util object imported"
+
     def ip( self , bundle ):
         h = httplib2.Http()
         resp, content = h.request("http://ifconfig.me/all/xml","GET")
         # kind of hackish. We need to wait for the popen to finish
         root = objectify.fromstring(content)
         ip = root['ip_addr']
-        print "HERE"
-        return "Dynamic plugins will dynamic reload."
+        return ip
+
+    def ping( self, bundle ):
+        host = bundle['sensory_input']
+        os.popen("ping -c")
 
 nw_util = Network_Util()

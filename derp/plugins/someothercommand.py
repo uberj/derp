@@ -4,7 +4,7 @@ from icommand import ICommand
 
 class Command(object):
     implements(IPlugin,ICommand)
-    commands = {'ha':'cmd'}
+    commands = {'test':'cmd'}
     name = "Command"
 
     def __init__(self):

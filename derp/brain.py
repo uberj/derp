@@ -48,16 +48,14 @@ class Brain:
         from twisted.plugin import getPlugins,IPlugin
         import plugins
         for plugin in getPlugins(IPlugin,plugins):
-
-            for cmd,fun in plugin.commands.items():
-                object_path = plugin.__module__+"."+plugin.name
-                print plugin.__module__
-                print object_path
-                p_module = rebuild(self.my_import(plugin.__module__))
-                p_object = eval(object_path[5:])()
-                print cmd
-                print fun
-                self.thoughts[cmd] = p_object.__getattribute__(fun)
+            try:
+                for cmd,fun in plugin.commands.items():
+                    object_path = plugin.__module__+"."+plugin.name
+                    p_module = rebuild(self.my_import(plugin.__module__))
+                    p_object = eval(object_path[5:])()
+                    self.thoughts[cmd] = p_object.__getattribute__(fun)
+            except AttributeError:
+                print "Error on importing plugins: "+str(plugin)
         print self.thoughts
 
     def contemplate(self,protocol,user,channel,msg):
@@ -66,7 +64,6 @@ class Brain:
         self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?",[channel])
         # We have a table for that channel. Write to it.
         if self.cursor.fetchall():
-            print self.c_token
             data = (str(time.time()),channel,user,msg)
             # It's safe to use channel because we already have a table called channel
             self.cursor.execute('insert into '+channel+' values (?,?,?,?)',data)
@@ -88,7 +85,6 @@ class Brain:
                             'conn': self.conn,
                             'cursor': self.cursor, # access to the channel log via sqlite3
                          }
-                print idea
                 if idea[1:] in self.thoughts:
                     return self.thoughts[idea[1:]](bundle)
                 elif re.match('.s/',idea):
