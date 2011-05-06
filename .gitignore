@@ -2,3 +2,4 @@ logfile
 db/
 *.pyc
 test.py
+derp/plugins/dropin.cache

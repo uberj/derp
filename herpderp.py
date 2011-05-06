@@ -32,8 +32,8 @@ class MessageLogger:
 
 class HerpBot(irc.IRCClient):
     """A herping IRC bot."""
+    nickname="derpxes"
 
-    nickname = "derpicus"
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.filename, "a"))
