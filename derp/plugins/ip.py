@@ -18,6 +18,7 @@ class Network_Util(object):
         # kind of hackish. We need to wait for the popen to finish
         root = objectify.fromstring(content)
         ip = root['ip_addr']
-        return ip
+        print "HERE"
+        return "Dynamic plugins will dynamic reload."
 
 nw_util = Network_Util()

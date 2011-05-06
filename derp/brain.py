@@ -35,6 +35,15 @@ class Brain:
         self.thoughts={}
         self.load_plugins()
 
+    # Credit Goes to dwestbrook on stack overflow
+    # http://stackoverflow.com/questions/211100/pythons-import-doesnt-work-as-expected
+    def my_import(self,name):
+        mod = __import__(name)
+        components = name.split('.')
+        for comp in components[1:]:
+            mod = getattr(mod, comp)
+        return mod
+
     def load_plugins( self ):
         from twisted.plugin import getPlugins,IPlugin
         import plugins
@@ -42,8 +51,9 @@ class Brain:
 
             for cmd,fun in plugin.commands.items():
                 object_path = plugin.__module__+"."+plugin.name
+                print plugin.__module__
                 print object_path
-                p_module = rebuild(eval('plugins.ip'))
+                p_module = rebuild(self.my_import(plugin.__module__))
                 p_object = eval(object_path[5:])()
                 print cmd
                 print fun
