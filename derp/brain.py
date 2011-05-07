@@ -8,6 +8,7 @@ from twisted.python.rebuild import rebuild
 import re
 import time
 from ConfigParser import ConfigParser
+from plugins import lib
 
 # Need to make this absolute eventually
 PLUGIN_CONFIG = 'Herp/config/plugins.cfg'
@@ -27,9 +28,17 @@ class Brain:
         self.conn = sqlite3.connect(db)
         self.cursor = self.conn.cursor()
         print "Going to use "+channel
-        self.cursor.execute("""create table if not exists %s
+        # Why are these subs here?
+        # Unfortunatly, some characters do not play nicely with sqlit3. You also cannot parameratize
+        # table names. Right now the best alternative I have is to just ditch the troublesome characters.
+        # IMPORTANT: This is bad. The channel name has to be passed into all the plugins so they can respond
+        # messages. Because of this, ONLY WHEN INSERTING INTO THE DATABASE MUST YOU CHANGE THE CHANNEL NAME.
+        # at all other times you have to use the ACTUAL channel name. i.e. osu-lug for plugins, osulug for database.
+        # Plug one million brownie points to whoever fixes this bug.
+
+        self.cursor.execute("""create table if not exists '%s'
                                 (date text, channel text, user text, msg text)
-                            """ % (channel))
+                            """ % re.escape("#"+channel))
         # LOAD THE PLUGINS OF DEATH!!!
         self.config = ConfigParser()
         self.thoughts={}
@@ -51,6 +60,7 @@ class Brain:
             try:
                 for cmd,fun in plugin.commands.items():
                     object_path = plugin.__module__+"."+plugin.name
+                    print "HERE"
                     p_module = rebuild(self.my_import(plugin.__module__))
                     p_object = eval(object_path[5:])()
                     self.thoughts[cmd] = p_object.__getattribute__(fun)
@@ -59,17 +69,21 @@ class Brain:
         print self.thoughts
 
     def contemplate(self,protocol,user,channel,msg):
-        channel = re.sub('#+','',channel)
         # We only want to log and response to messages for registered tables.
-        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?",[channel])
+        self.cursor.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='%s'""" % re.escape(channel))
         # We have a table for that channel. Write to it.
+        print channel
+        print re.escape(channel)
         if self.cursor.fetchall():
+            print msg
+            print "HERE"
             data = (str(time.time()),channel,user,msg)
             # It's safe to use channel because we already have a table called channel
-            self.cursor.execute('insert into '+channel+' values (?,?,?,?)',data)
+            self.cursor.execute("insert into '%s' values (?,?,?,?)" %re.escape(channel),data)
             self.conn.commit()
             # It is a command.
             if msg.startswith(self.c_token):
+                print msg
                 line = msg.split(' ')
                 idea = line[0]
                 sensory_input = ' '.join(line[1:])

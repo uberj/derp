@@ -21,6 +21,7 @@ class Network_Util(object):
         # kind of hackish. We need to wait for the popen to finish
         root = objectify.fromstring(content)
         ip = root['ip_addr']
+        print ip
         return ip
 
     def ping( self, bundle ):

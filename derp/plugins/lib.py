@@ -16,3 +16,10 @@ def get_user(line):
         return False
     user = m.groups()
     return user[0].strip()
+
+# Quick little function to move some hackishness into a library.
+def db_execute(cursor,sql,values,channel):
+    channel = re.sub('#+','',channel)
+    db_channel = channel.replace('-','_')
+    cursor.execute(sql,values)
+    return
