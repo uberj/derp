@@ -98,10 +98,10 @@ class Brain:
                          }
                 if idea[1:] in self.thoughts:
                     return self.thoughts[idea[1:]](bundle)
-                elif re.match('.s/',idea):
+                elif re.match(self.c_token+'s/',idea):
                     print idea
                     # pass the whole message in
-                    return self.thoughts['.s'](bundle)
+                    return self.thoughts['s'](bundle)
         else:
             print "message from unknown channel "+channel
             print msg
