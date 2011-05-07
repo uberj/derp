@@ -9,6 +9,7 @@ import time, sys, os
 from derp import brain
 GLOBAL_CONFIG = 'config.cfg'
 from ConfigParser import ConfigParser
+from derp.lib import irc_auth
 
 class MessageLogger:
     """
@@ -37,6 +38,9 @@ class HerpBot(irc.IRCClient):
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.filename, "a"))
+        self.factory.config.read(GLOBAL_CONFIG)
+        self.admin = self.factory.config.get('admin','nick')
+        self.auth = irc_auth.admin_auth()
         self.logger.log("[connected at %s]" %
                         time.asctime(time.localtime(time.time())))
 
@@ -70,10 +74,17 @@ class HerpBot(irc.IRCClient):
 
         # Check to see if they're sending me a private message
         if channel == self.nickname:
-            print user+" "+channel+" "+msg
+            if user == "NickServ":
+                print user+" "+channel+" "+msg
+                if not self.auth.q_auth(): # We haven't confirmed anything
+                    self.auth.new_line(self.admin,msg)
+                else:
+                    print "No auth"
 
-            msg = msg.split(' ')
-            if msg[0] == "!loadplugins":
+            con_msg = msg.split(' ')
+            if con_msg[0] == "!loadplugins":
+                self.msg("NickServ","info "+user)
+                """
                 self.factory.config.read(GLOBAL_CONFIG)
                 if len(msg) is 2 and msg[1] == self.factory.config.get('plugin_control','pswd'):
                     print "Loading plugins"
@@ -81,14 +92,17 @@ class HerpBot(irc.IRCClient):
                     # I should work in an error message into the plugin loading process.
                     self.msg(user,"Loaded plugins, check the log for success/failure")
                     return
+                """
 
-            msg = "I don't talk to people like you."
+            """
             if user == "NickServ":
                 #We don't want to respond to NickServ or ChanServ. We get stuck in an infinite loop.
                 # BUGGGGGGYYYYY HAAACKK MY FACE
                 print "NickServ: "+msg
                 return
             self.msg(user, msg)
+            """
+        return
 
         # Otherwise check to see if it is a message directed at me
         if msg.startswith(self.nickname + ":"):
