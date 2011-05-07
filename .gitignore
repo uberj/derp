@@ -1,5 +1,5 @@
+derp/plugins/dropin.*
 logfile
 db/
 *.pyc
 test.py
-derp/plugins/dropin.*

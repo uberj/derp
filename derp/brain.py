@@ -18,24 +18,12 @@ class Brain:
     def __init__( self, channel ):
         self.config = ConfigParser()
         self.config.read(GLOBAL_CONFIG)
-        #self.c_token = self.config.get('command_token','token')
-        path = self.config.get('base_directory','dir')
         self.c_token=self.config.get('command_token','token')
-        # This will need to be ported when we leave sqlite3
-        #db = self.config.get('database','path')
+        path = self.config.get('base_directory','dir')
         db = path+'Herp/derp/db/channel_log'
-        print db
         self.conn = sqlite3.connect(db)
         self.cursor = self.conn.cursor()
         print "Going to use "+channel
-        # Why are these subs here?
-        # Unfortunatly, some characters do not play nicely with sqlit3. You also cannot parameratize
-        # table names. Right now the best alternative I have is to just ditch the troublesome characters.
-        # IMPORTANT: This is bad. The channel name has to be passed into all the plugins so they can respond
-        # messages. Because of this, ONLY WHEN INSERTING INTO THE DATABASE MUST YOU CHANGE THE CHANNEL NAME.
-        # at all other times you have to use the ACTUAL channel name. i.e. osu-lug for plugins, osulug for database.
-        # Plug one million brownie points to whoever fixes this bug.
-
         self.cursor.execute("""create table if not exists '%s'
                                 (date text, channel text, user text, msg text)
                             """ % re.escape("#"+channel))
@@ -70,22 +58,18 @@ class Brain:
             print str(key)+" : "+str(value)
 
     def contemplate(self,protocol,user,channel,msg):
-        # We only want to log and response to messages for registered tables.
-        self.cursor.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='%s'""" % re.escape(channel))
         # We have a table for that channel. Write to it.
-        if self.cursor.fetchall():
-            data = (str(time.time()),channel,user,msg)
-            # It's safe to use channel because we already have a table called channel
-            self.cursor.execute("insert into '%s' values (?,?,?,?)" %re.escape(channel),data)
-            self.conn.commit()
+        if self.channel_exists( channel ):
+            self.log_to_channel( channel, user, msg )
             # It is a command.
             if msg.startswith(self.c_token):
                 print msg
+                # Parse the raw user input.
                 line = msg.split(' ')
-                idea = line[0]
+                idea = line[0][1:] # Drop the c_token
                 sensory_input = ' '.join(line[1:])
                 # There is a lot of resources to pass to each subroutine.
-                # If you need to pass it something just add it to the bundle.
+                # If you need to pass something, just add it to the bundle.
                 bundle = {
                             'mouth': protocol, # write to this
                             'user': user,
@@ -96,16 +80,26 @@ class Brain:
                             'conn': self.conn,
                             'cursor': self.cursor, # access to the channel log via sqlite3
                          }
-                if idea[1:] in self.thoughts:
-                    return self.thoughts[idea[1:]](bundle)
-                elif re.match(self.c_token+'s/',idea):
-                    print idea
-                    # pass the whole message in
+                if idea in self.thoughts:
+                    return self.thoughts[idea](bundle)
+                elif re.match('s/',idea):
                     return self.thoughts['s'](bundle)
         else:
             print "message from unknown channel "+channel
             print msg
             return None
+
+    def log_to_channel( self, channel, user, msg ):
+        data = (str(time.time()),channel,user,msg)
+        # It's safe to use channel because we already have a table called channel
+        self.cursor.execute("insert into '%s' values (?,?,?,?)" %re.escape(channel),data)
+        self.conn.commit()
+        return
+
+    def channel_exists( self, channel ):
+        # We only want to log and response to messages for registered tables.
+        self.cursor.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='%s'""" % re.escape(channel))
+        return self.cursor.fetchall()
 
     def do_plugin_error( self, module, idea, function ):
         print "Error importing %s%s function: %s" % (module,idea,function)

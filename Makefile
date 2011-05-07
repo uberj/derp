@@ -4,3 +4,4 @@ all:
 
 clean:
 	find -iname *.pyc -delete
+	rm derp/plugins/dropin.cache

@@ -75,9 +75,8 @@ class HerpBot(irc.IRCClient):
             msg = msg.split(' ')
             if msg[0] == "!loadplugins":
                 self.factory.config.read(GLOBAL_CONFIG)
-                print msg
                 if len(msg) is 2 and msg[1] == self.factory.config.get('plugin_control','pswd'):
-                    print "PASSED: loading plugins"
+                    print "Loading plugins"
                     self.factory.brain.load_plugins()
                     # I should work in an error message into the plugin loading process.
                     self.msg(user,"Loaded plugins, check the log for success/failure")
