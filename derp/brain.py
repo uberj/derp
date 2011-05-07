@@ -66,17 +66,14 @@ class Brain:
                     self.thoughts[cmd] = p_object.__getattribute__(fun)
             except AttributeError:
                 print "Error on importing plugins: "+str(plugin)
-        print self.thoughts
+        for key,value in self.thoughts.items():
+            print str(key)+" : "+str(value)
 
     def contemplate(self,protocol,user,channel,msg):
         # We only want to log and response to messages for registered tables.
         self.cursor.execute("""SELECT name FROM sqlite_master WHERE type='table' AND name='%s'""" % re.escape(channel))
         # We have a table for that channel. Write to it.
-        print channel
-        print re.escape(channel)
         if self.cursor.fetchall():
-            print msg
-            print "HERE"
             data = (str(time.time()),channel,user,msg)
             # It's safe to use channel because we already have a table called channel
             self.cursor.execute("insert into '%s' values (?,?,?,?)" %re.escape(channel),data)

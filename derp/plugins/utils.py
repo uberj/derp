@@ -24,7 +24,7 @@ class Utils(object):
         user = bundle['user']
         expr = bundle['idea'].split('/')[1:] # Just get the /<search>/<replace. Put in list
         channel = bundle['channel']
-        sql = "select * from %s order by date desc limit 5" % channel # Unless there is crazy lag, if won't be that long ago
+        sql = "select * from '%s' order by date desc limit 5" % re.escape(channel) # Unless there is crazy lag, if won't be that long ago
         cursor.execute(sql)
         lines = cursor.fetchall()
         auto_line=""
@@ -73,7 +73,7 @@ class Utils(object):
         channel = bundle['channel']
         user = bundle['user']
         expr = bundle['msg'].split('/')[1:] # Just get the /<search>/<replace. Put in list
-        sql = "select * from %s order by date desc" % channel
+        sql = "select * from '%s' order by date desc" % re.escape(channel)
         print expr
         offset = 0
         try:
