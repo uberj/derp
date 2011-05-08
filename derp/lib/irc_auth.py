@@ -16,22 +16,22 @@ class admin_auth( object ):
         If the user has last seen "now" then they are online and registered (no one else can have their nick).
         If the user trying to authenticate has that same nick, then we know it's them and we confirm.
     """
-    def __init__( self ):
+    def __init__( self, admin ):
         self.phase = 1
         self.authed = False
-        self.user = ""
+        self.admin = admin
 
-    def new_line( self, admin, line ):
+    def new_line( self, line ):
         if self.phase is 1:
             m = re.search("account \x02(.*)\x02",line)
             if m:
                 print m.groups(0)[0]
                 # Are we dealing with an authorized user
-                if m.groups(0)[0] == admin:
+                if m.groups(0)[0] == self.admin:
                     self.phase = 2
                     print "Phase 1 passed"
         elif self.phase is 2:
-            m = re.match("Registered",line])
+            m = re.match("Registered",line)
             if m:
                 print "Phase 2 passed"
                 self.phase = 3
@@ -41,20 +41,29 @@ class admin_auth( object ):
                 print "Phase 3 passed"
                 self.phase = 4
         elif self.phase is 4:
-            m = re.match("Last seen",line)
-            status = line.split(":")
-            self.phase = 5
-            print "status is"
-            print status
+            m = re.match("Last seen  : now",line)
+            if m:
+                print "Phase 4 passed"
+                self.phase = 5
+                self.authed = True
+                print "AUTHED!"
+            else:
+                print "AUTH FAILED"
         elif self.phase is 5:
             self.phase is 6
         elif self.phase is 6:
-            self.authed = True
+            print "Phase 6 passed"
+        else:
+            print "END AUTH"
 
 
+    def reset_auth( self ):
+        self.authed = False
+        self.phase = 1
 
     def de_auth( self ):
         self.authed = False
+        self.phase = 1
 
     def q_auth( self ):
         return self.authed

@@ -5,11 +5,11 @@ from twisted.python import log
 from twisted.words.protocols import irc
 
 # system imports
-import time, sys, os
+import time, sys
 from derp import brain
-GLOBAL_CONFIG = 'config.cfg'
 from ConfigParser import ConfigParser
-from derp.lib import irc_auth
+
+GLOBAL_CONFIG = 'config.cfg'
 
 class MessageLogger:
     """
@@ -39,8 +39,6 @@ class HerpBot(irc.IRCClient):
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.filename, "a"))
         self.factory.config.read(GLOBAL_CONFIG)
-        self.admin = self.factory.config.get('admin','nick')
-        self.auth = irc_auth.admin_auth()
         self.logger.log("[connected at %s]" %
                         time.asctime(time.localtime(time.time())))
 
@@ -61,48 +59,16 @@ class HerpBot(irc.IRCClient):
         """This will get called when the bot joins the channel."""
         self.logger.log("[I have joined %s]" % channel)
 
-    def test(self,channel, msg):
-        print "HERE"
-        self.msg("uberjderp","internel message")
-        print "THERE"
-        return
-
     def privmsg(self, user, channel, msg):
         """This will get called when the bot receives a message."""
         user = user.split('!', 1)[0]
         self.logger.log("[%s] <%s> %s" % (channel,user, msg))
 
+
         # Check to see if they're sending me a private message
         if channel == self.nickname:
-            if user == "NickServ":
-                print user+" "+channel+" "+msg
-                if not self.auth.q_auth(): # We haven't confirmed anything
-                    self.auth.new_line(self.admin,msg)
-                else:
-                    print "No auth"
-
-            con_msg = msg.split(' ')
-            if con_msg[0] == "!loadplugins":
-                self.msg("NickServ","info "+user)
-                """
-                self.factory.config.read(GLOBAL_CONFIG)
-                if len(msg) is 2 and msg[1] == self.factory.config.get('plugin_control','pswd'):
-                    print "Loading plugins"
-                    self.factory.brain.load_plugins()
-                    # I should work in an error message into the plugin loading process.
-                    self.msg(user,"Loaded plugins, check the log for success/failure")
-                    return
-                """
-
-            """
-            if user == "NickServ":
-                #We don't want to respond to NickServ or ChanServ. We get stuck in an infinite loop.
-                # BUGGGGGGYYYYY HAAACKK MY FACE
-                print "NickServ: "+msg
-                return
-            self.msg(user, msg)
-            """
-        return
+            self.factory.brain.personal_message( self, user, channel, msg )
+            return
 
         # Otherwise check to see if it is a message directed at me
         if msg.startswith(self.nickname + ":"):
@@ -113,6 +79,7 @@ class HerpBot(irc.IRCClient):
 
         # If it is not a pm and not an action, then it must be someone speaking. Pass
         # their words into the brain and write it's response to the wire.
+        print "HERE"
         response = self.factory.brain.contemplate(self,user,channel,msg)
         if response:
             self.msg(channel,response)
