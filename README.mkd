@@ -1,4 +1,5 @@
-== A flexible irc bot. ==
+A flexible irc bot.
+===================
 
 Motivation
 ----------
@@ -17,16 +18,16 @@ The an actual plug-in is instance of classe implementing ICommand. This means th
 Don't do it yet. Let me make the bot more stable so you don't have to re-write anything later down the road.
 
 When you implement the ICommand interface the bot will attempt to load your plug-in. If your plug-in is loaded (right now you need to check the logging output) it will receive a “bundle” of resources that your plug-in has access to. All the resources are mapped by keys in a dictionary. The actual resources it get's are in brain.py in the function contemplate(). The resources are:
--   'mouth'  - This is the instance of the underlying protocol class. You can use this to write to the wire. For example,
+-   mouth  - This is the instance of the underlying protocol class. You can use this to write to the wire. For example,
     bundle['mouth'].msg(“#osu-lug”,”ponies”)
     will send the message “ponies” to the channel “osu-lug”.
--   'user' - This is the user that triggered your plug-in to be called.
--   'channel' - The channel in which your plug-in is being called from.
--   'msg' - The full message that the user said when activating your plug-in. For example “!someplugin perameter1 perameter2” would be in the bundle.
--   'idea' - The command itself. In the example above, idea would have the value “someplugin”
--   'sensory_input'  - Just the parameters. In the example above, sensory_input would be mapped to the string  “perameter1 perameter2”.
--   'conn' - A connection object to the logging database.
--   'cursor'     - A cursor object that is pointed toward an sqlite3 database that is logging everything happening in the channel from which the plug-in was called from.
+-   user - This is the user that triggered your plug-in to be called.
+-   channel - The channel in which your plug-in is being called from.
+-   msg - The full message that the user said when activating your plug-in. For example “!someplugin perameter1 perameter2” would be in the bundle.
+-   idea - The command itself. In the example above, idea would have the value “someplugin”
+-   sensory_input  - Just the parameters. In the example above, sensory_input would be mapped to the string  “perameter1 perameter2”.
+-   conn - A connection object to the logging database.
+-   cursor - A cursor object that is pointed toward an sqlite3 database that is logging everything happening in the channel from which the plug-in was called from.
 
 ### Loading plug-ins ###
 To load plug-ins you need to put your nick in the global configuration file under admin. Send a personal message to the bot asking it to “!loadplugins”. Watch the logging output. The bot will attempt to verify your identity with NickServ before loading any plug-ins, so make sure your nick is registered.
