@@ -20,9 +20,7 @@ Don't do it yet. Let me make the bot more stable so you don't have to re-write a
 When you implement the ICommand interface the bot will attempt to load your plug-in. If your plug-in is loaded (right now you need to check the logging output) it will receive a “bundle” of resources that your plug-in has access to. All the resources are mapped by keys in a dictionary. The actual resources it get's are in brain.py in the function contemplate(). Here are the resources.
 
 *   mouth  - This is the instance of the underlying protocol class. You can use this to write to the wire. For example,
-~~~
-    bundle['mouth'].msg(“#osu-lug”,”ponies”)
-~~~
+        bundle['mouth'].msg(“#osu-lug”,”ponies”)
     will send the message “ponies” to the channel “osu-lug”.
 *   user - This is the user that triggered your plug-in to be called.
 *   channel - The channel in which your plug-in is being called from.
