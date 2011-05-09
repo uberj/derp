@@ -1,5 +1,8 @@
+derp/plugins/twitter_notes
 derp/plugins/dropin.*
 logfile
 db/
 *.pyc
 test.py
+derp/plugins/twitter.cfg
+derp/tests/

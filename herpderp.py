@@ -58,6 +58,7 @@ class HerpBot(irc.IRCClient):
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         self.logger.log("[I have joined %s]" % channel)
+        print "Joined channel: "+str(channel)
 
     def privmsg(self, user, channel, msg):
         """This will get called when the bot receives a message."""
@@ -67,19 +68,17 @@ class HerpBot(irc.IRCClient):
 
         # Check to see if they're sending me a private message
         if channel == self.nickname:
-            self.factory.brain.personal_message( self, user, channel, msg )
+            self.factory.brain.personal_message(self,user,channel,msg)
             return
 
         # Otherwise check to see if it is a message directed at me
         if msg.startswith(self.nickname + ":"):
             msg = "%s: I've been derping really hard lately. I can't respond." % user
-            print channel
             self.msg(channel, msg)
             self.logger.log("<%s> %s" % (self.nickname, msg))
 
         # If it is not a pm and not an action, then it must be someone speaking. Pass
         # their words into the brain and write it's response to the wire.
-        print "HERE"
         response = self.factory.brain.contemplate(self,user,channel,msg)
         if response:
             self.msg(channel,response)

@@ -44,25 +44,6 @@ class Brain:
         self.thoughts={}
         self.load_plugins()
 
-    def personal_message( self, protocol, user, channel, msg):
-
-        if user == "NickServ":
-            print user+" "+channel+" "+msg
-            if not self.irc_auth.q_auth(): # We haven't confirmed anything
-                self.irc_auth.new_line( msg )
-            else:
-                print "No auth yet, in phase: "+str(self.irc_auth.phase)
-
-        con_msg = msg.split(' ')
-        if con_msg[0] == "!loadplugins":
-            self.irc_auth.reset_auth()
-            protocol.msg("NickServ","info "+user)
-            self.config.read(GLOBAL_CONFIG)
-            print "Attempting to load plugins..."
-            # This function will check for a succesful auth
-            reactor.callLater(3,self.load_plugins)
-
-
     def contemplate(self,protocol,user,channel,msg):
         # We have a table for that channel. Write to it.
 
@@ -96,6 +77,23 @@ class Brain:
             print msg
             return None
 
+    def personal_message( self, protocol, user, channel, msg):
+
+        if user == "NickServ":
+            print user+" "+channel+" "+msg
+            if not self.irc_auth.q_auth(): # We haven't confirmed anything
+                self.irc_auth.new_line( msg )
+            else:
+                print "No auth yet, in phase: "+str(self.irc_auth.phase)
+
+        con_msg = msg.split(' ')
+        if con_msg[0] == "!loadplugins":
+            self.irc_auth.reset_auth()
+            protocol.msg("NickServ","info "+user)
+            self.config.read(GLOBAL_CONFIG)
+            print "Attempting to load plugins..."
+            # This function will check for a succesful auth
+            reactor.callLater(3,self.load_plugins)
 
     # Credit Goes to dwestbrook on stack overflow
     # http://stackoverflow.com/questions/211100/pythons-import-doesnt-work-as-expected

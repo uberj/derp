@@ -32,7 +32,7 @@ class Jokes(object):
         print channel
         cursor = bundle['cursor']
         sql =  "select * from '%s'\
-                where user='uberj' and\
+                where user='manatee' and\
                 date>%s and\
                 msg='OMG!!! Ponies!!!'" % (re.escape(channel),str(time.time()-10))
         print sql
