@@ -58,6 +58,8 @@ class HerpBot(irc.IRCClient):
     def joined(self, channel):
         """This will get called when the bot joins the channel."""
         self.logger.log("[I have joined %s]" % channel)
+        # Start the subc
+        self.factory.brain.start_subconcious( self, channel )
         print "Joined channel: "+str(channel)
 
     def privmsg(self, user, channel, msg):
