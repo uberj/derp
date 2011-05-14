@@ -20,10 +20,18 @@ class Rss(object):
         One day it will be in a database wrapped in an ORM.
         """
         self.rss_feeds = self.get_feeds()
+        # A list of channels to send rss updates to.
+        # Manipulate this with rss_utils. Eventually let's save this to a config file/database
+        self.channels = ["#uberj-test"]
 
-    def sub( self ):
-        print "WORKS"
+    def sub( self, protocol ):
+        print "THERE again"
         #return str(self.rss_feeds)+"Downloading..."
+
+    def send_to_channels( self ):
+
+        for channel in self.channels:
+            protocol.msg(channel, "ping")
 
     """
     Manipulate the RSS modules internal state.

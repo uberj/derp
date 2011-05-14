@@ -4,6 +4,11 @@ from twisted.internet import reactor, protocol
 from twisted.python import log
 from twisted.words.protocols import irc
 
+# HAKAKAKCKCKCKCK
+# Need to put this in a more appropriate file
+import sys
+sys.path.append("/home/uberj/Herp/derp/")
+
 # system imports
 import time, sys
 from derp import brain
@@ -59,7 +64,6 @@ class HerpBot(irc.IRCClient):
         """This will get called when the bot joins the channel."""
         self.logger.log("[I have joined %s]" % channel)
         # Start the subc
-        self.factory.brain.start_subconcious( self, channel )
         print "Joined channel: "+str(channel)
 
     def privmsg(self, user, channel, msg):
@@ -123,7 +127,7 @@ class HerpBotFactory(protocol.ClientFactory):
     def __init__(self, channel, filename):
         self.channel = channel
         self.filename = filename
-        self.brain = brain.Brain(channel)
+        self.brain = brain.Brain( channel )
         self.config = ConfigParser()
 
     def clientConnectionLost(self, connector, reason):
