@@ -3,6 +3,8 @@ from twisted.plugin import IPlugin
 from isubroutine import ISubroutine
 from icommand import ICommand
 
+import feedparser
+
 class Rss(object):
     implements(IPlugin,ISubroutine)
     commands = {'rss':'rss_util'}
@@ -25,7 +27,7 @@ class Rss(object):
         self.channels = ["#uberj-test"]
 
     def sub( self, protocol ):
-        print "THERE again"
+        print "THERE again again"
         #return str(self.rss_feeds)+"Downloading..."
 
     def send_to_channels( self ):
@@ -44,6 +46,17 @@ class Rss(object):
     @return list
     """
     def get_feeds( self ):
-        # Eventually migrate this to a db.
         return ['test.com']
+
+    def get_feed( self, url ):
+        url = "http://feeds.arstechnica.com/arstechnica/security?format=xml"
+        feeds = feedparser.parse(url)
+        items = []
+        for feed in feeds:
+            items.extend(feed["items"])
+        sorted = sorted(items, key=lambda item: item["date_parsed"])
+
+
+
+
 rss = Rss()
